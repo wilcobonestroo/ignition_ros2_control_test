@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<robot name="simple-robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <material name="white">
+    <color rgba="1 1 1 0.9"/>
+  </material>
+
+  <material name="blue">
+    <color rgba="0 0 0.8 0.9"/>
+  </material>
+
+  <material name="red">
+    <color rgba="0.8 0 0 0.9"/>
+  </material>
+
+  <xacro:macro name="inertial_for_box" params="width height depth mass">
+    <inertial>
+      <mass value="${mass}" />
+      <inertia ixx="${(mass/12.0)*(height*height + depth*depth)}" ixy="0.0" ixz="0.0"
+        iyy="${(mass/12.0)*(width*width + height*height)}" iyz="0.0"
+        izz="${(mass/12.0)*(width*width + depth*depth)}" />
+    </inertial>
+  </xacro:macro>
+
+  <link name="base_link">
+    <collision>
+      <geometry>
+        <box size="1 1 0.0001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="robot_base">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 1.0"/>
+      </geometry>
+      <material name="red" />
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 1.0"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_for_box width="0.6" height="0.1" depth="0.2" mass="10" />
+  </link>
+
+  <link name="robot_arm">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.8"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 -0.35"/>
+      <material name="blue" />
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 0.8"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="0 0 -0.35"/>
+    </collision>
+    <xacro:inertial_for_box width="0.6" height="0.1" depth="0.2" mass="200" />
+  </link>
+
+  <joint name="robot_base_to_base_link" type="fixed">
+    <parent link="base_link"/>
+    <child link="robot_base"/>
+    <origin rpy="0 0 0" xyz="0 0 0.5"/>
+  </joint>
+
+
+  <joint name="the_joint" type="revolute">
+    <parent link="robot_base"/>
+    <child link="robot_arm"/>
+    <origin rpy="0 2 0" xyz="0 0.1 0.45"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10.0" lower="-3" upper="3" velocity="0.5"/>
+    <dynamics damping="0.01" friction="0.0"/>
+  </joint>
+
+  <ros2_control name="IgnitionSystem" type="system">
+    <hardware>
+      <plugin>ign_ros2_control/IgnitionSystem</plugin>
+    </hardware>
+    <joint name="the_joint">
+      <command_interface name="effort">
+        <param name="min">-1000</param>
+        <param name="max">1000</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">1.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin filename="libign_ros2_control-system.so" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>robot_state_publisher</robot_param_node>
+      <parameters>$(find ignition_ros2_control_test)/config/controller.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+<!--
+  <ros2_control name="IgnitionSystem" type="system">
+    <hardware>
+      <plugin>ign_ros2_control/IgnitionSystem</plugin>
+    </hardware>
+    <joint name="rear_axis_to_right_rear_wheel_fix">
+      <command_interface name="position">
+        <param name="min">-1</param>
+        <param name="max">1</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin filename="libign_ros2_control-system.so" name="ign_ros2_control::IgnitionROS2ControlPlugin"/>
+    <parameters>$(find aigro-robot-model)/config/controller.yaml</parameters>
+  </gazebo>
+-->
+
+</robot>

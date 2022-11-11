@@ -68,34 +68,13 @@
     <origin rpy="0 0 0" xyz="0 0 0.5"/>
   </joint>
 
-
   <joint name="the_joint" type="revolute">
     <parent link="robot_base"/>
     <child link="robot_arm"/>
-    <origin rpy="0 2 0" xyz="0 0.1 0.45"/>
+    <origin rpy="0 0.66 0" xyz="0 0.1 0.45"/>
     <axis rpy="0 0 0" xyz="0 1 0"/>
     <limit effort="10.0" lower="-3" upper="3" velocity="0.5"/>
-    <dynamics damping="0.01" friction="0.0"/>
+    <dynamics damping="0.001" friction="0.0001"/>
   </joint>
-
-  <ros2_control name="IgnitionSystem" type="system">
-    <hardware>
-      <plugin>ign_ros2_control/IgnitionSystem</plugin>
-    </hardware>
-    <joint name="the_joint">
-      <command_interface name="position" />
-      <state_interface name="position" />
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-  </ros2_control>
-
-  <gazebo>
-    <plugin filename="libign_ros2_control-system.so" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-      <robot_param>robot_description</robot_param>
-      <robot_param_node>robot_state_publisher</robot_param_node>
-      <parameters>$(find ignition_ros2_control_test)/config/controller.yaml</parameters>
-    </plugin>
-  </gazebo>
 
 </robot>

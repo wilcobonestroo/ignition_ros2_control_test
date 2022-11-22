@@ -29,7 +29,7 @@ import xacro
 
 def generate_launch_description():
     urdf_tutorial_path = get_package_share_path('ignition_ros2_control_test')
-    default_model_path = urdf_tutorial_path / 'urdf/simple-robot.urdf.xacro'
+    default_model_path = urdf_tutorial_path / 'urdf/my-simple-robot.urdf.xacro'
 
     model_arg = DeclareLaunchArgument(name='model', default_value=str(default_model_path),
                                       description='Absolute path to robot urdf file')
@@ -76,9 +76,9 @@ def generate_launch_description():
     # Spawn
     spawn = Node(package='ros_gz_sim', executable='create',
                  arguments=[
-                    '-name', 'simple-robot',
+                    '-name', 'simple_robot',
                     '-x', '0.0',
-                    '-z', '2.0',
+                    '-z', '6.0',
                     '-y', '0.0',
                     '-topic', '/robot_description'],
                  output='screen')
